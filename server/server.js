@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors'
 import mongoose from 'mongoose';
 import bodyParser from "body-parser";
+import route from "./userRoutes.js";
 
 const app = express();
 app.use (bodyParser.json());
@@ -28,6 +29,7 @@ app.listen(PORT,()=>{
     connectToDatabase();
     console.log(`server is running on PORT: ${PORT}`);
 })
+app.use("/api",route);
 
 
 
