@@ -3,7 +3,7 @@ import  Users from './components/layout/users'
 import React from 'react';
 import { BrowserRouter as Router, Route, Link, Routes } from "react-router-dom";
 import { Suspense, lazy } from "react";
-import UserInfo from './components/layout/userInfo.jsx';
+
 import deviceDetails from './components/layout/deviceDetails.jsx';
 import shops from './components/layout/shops.jsx';
 
