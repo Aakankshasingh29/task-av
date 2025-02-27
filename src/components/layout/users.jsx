@@ -89,6 +89,28 @@ const User = () => {
         fetchData();
 
         },[])
+		
+		// const [shopCount, setShopCount] = useState([]);
+
+		useEffect(() => {
+			if (role==="DISTRIBUTOR"){
+				const fetchData =async ()=>{
+				await axios.get(`http://localhost:5000/api/userInfo/${id}`)
+				.then(response => response.json())
+				}
+				fetchData();
+			}
+			else{
+				const fetchData = async ()=>{
+					await axios.get("http://localhost:5000/api/getUsers/").then((response) => {
+						setUsers(response.data);
+					})
+				}
+				fetchData();
+			}
+
+			
+		} )
 
 
 		return (

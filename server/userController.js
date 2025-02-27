@@ -48,36 +48,42 @@ export const getUsers = async (req,res) => {
 export const getUserInfo = async (req,res) => {
   try {
     const { distributorId } = req.body;
-    const data = await userModel.aggregate([
-      { $match : { role : "SHOPS", "parentId": distributorId} },
+    const aggregation = [
+      { $match : { role : "SHOP", "parentId": distributorId} },
       {
         $lookup: {
           from: "device_details",
-          let: { shopId:{ $toString: "$_id"}  },
+          let: { shopId: "$_id" },
           pipeline: [
             {
               $match: {
                 $expr: {
-         $eq:  ["$shopId", "$$shopId"]                   
+                $eq:  ["$shopId", "$$shopId"]                   
                 },
             
               }
             }
           ],
-          as: "shops-count"
+          as: "shops_count"
         }
       
       },
+      { $unwind: "$shops_count" },
       { $project: {
         role: 1,
+        "username": 1,
         "shopCount": {
          "$size": {
-           "$ifNull": ["$shop-count", 0]
+           "$ifNull": ["$shops_count.details", 0]
          }
-       },
-      }}
-    ])
-    console.log(data)
+      
+      }
+    }
+       
+      }
+    ]
+    // console.log(JSON.stringify(aggregation));
+    const data = await userModel.aggregate(aggregation)
     res.status(200).json(data)
 
     
