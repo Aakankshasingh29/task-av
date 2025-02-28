@@ -47,7 +47,8 @@ export const getUsers = async (req,res) => {
 
 export const getUserInfo = async (req,res) => {
   try {
-    const { distributorId } = req.body;
+    const { distributorId } = req.params;
+    console.log(distributorId)
     const aggregation = [
       { $match : { role : "SHOP", "parentId": distributorId} },
       {
@@ -84,6 +85,7 @@ export const getUserInfo = async (req,res) => {
     ]
     // console.log(JSON.stringify(aggregation));
     const data = await userModel.aggregate(aggregation)
+    console.log(data, "data")
     res.status(200).json(data)
 
     

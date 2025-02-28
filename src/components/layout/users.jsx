@@ -96,7 +96,8 @@ const User = () => {
 			if (role==="DISTRIBUTOR"){
 				const fetchData =async ()=>{
 				await axios.get(`http://localhost:5000/api/userInfo/${id}`)
-				.then(response => response.json())
+				.then((response) => { setUsers(response.data);}
+			)
 				}
 				fetchData();
 			}
@@ -110,21 +111,35 @@ const User = () => {
 			}
 
 			
-		} )
+		},[role] )
 
 
 		return (
 			<>
+			{/* const handleActionItemClick = (item, itemID) => {
+    var updateItem = item.toLowerCase();
+    if (updateItem === "delete") {
+      alert(`#${itemID} item delete`);
+    } else if (updateItem === "edit") {
+      navigate(`/catalog/product/manage/${itemID}`);
+    }
+  }; */}
 			<div className='user-table'>
 				<table border={1} cellPadding={10} cellSpacing={0}>
+			
 					<thead>
 						<tr>
-							<th>DISTRIBUTOR</th>
-							<th>SHOPS</th>
-							
+							{ role === "DISTRIBUTOR"? <th>SHOPS</th>: <th>DISTRIBUTORS</th>}
+							{role ==="DISTRIBUTOR" ? <th>DEVICE</th>:<th>SHOPS</th>}
+
+
+
+
 						</tr>
 					</thead>
+
 					<tbody>
+				
 							{users.map((user)=> (
 								<tr key={user.id}>
 								  <td>{user.username}</td>
