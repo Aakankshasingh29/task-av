@@ -97,4 +97,28 @@ export const getUserInfo = async (req,res) => {
 }
     
   
+export const getdeviceDetails = async (req,res) => {
+  try {
+    const details = await deviceDetails.aggregate([ 
+      { $match : { role : "shopId" } },
+      {
+        $unwind: {
+            path: '$details',
+        
+        }
+        
+    },
+  console.log(details)
   
+    
+    ])
+   
+
+  res.status(200).json(data)
+  } catch (error) {
+      console.log(error)
+      res.status(500).json({error: error})
+      
+    }
+  
+}

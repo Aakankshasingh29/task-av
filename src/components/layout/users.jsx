@@ -101,6 +101,15 @@ const User = () => {
 				}
 				fetchData();
 			}
+			else if (role==="SHOP") {
+				const fetchData = async ()=>{
+					await axios.get("http://localhost:5000/api/DeviceDetails/").then ((response)=>{
+						setUsers(response.data);
+					})
+				}
+				fetchData();
+			}
+			
 			else{
 				const fetchData = async ()=>{
 					await axios.get("http://localhost:5000/api/getUsers/").then((response) => {
