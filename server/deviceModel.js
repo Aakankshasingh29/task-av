@@ -1,14 +1,18 @@
 import mongoose, { version } from "mongoose";
 
 const deviceSchema = new mongoose.Schema({
-    version:{
-        type: Number,
-        required: true
-    },
-    macAddress:{
-        type: mongoose.Schema.Types.Mixed,
-        required: true
-
-    }
+        details:{
+        version: String,
+        macAddress: String
+        },
+        shopId:{
+            type: String,
+            required : true
+        },
+        username:{
+            type: String,
+            required: true
+        },    
+    
 })
-export default mongoose.model("device",deviceSchema);
+export default mongoose.model("device_details",deviceSchema);

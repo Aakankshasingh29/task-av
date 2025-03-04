@@ -73,26 +73,10 @@ import { useParams } from 'react-router-dom'
 
 const User = () => {
     const [users, setUsers] = useState([]);	
-
 	const { role, id } = useParams()
-	console.log(role, "role")
-	console.log(id, "id")
- 
 	const navigate = useNavigate();
-    useEffect(()=>
-    {
-        const fetchData = async ()=>{
-            await axios.get("http://localhost:5000/api/getUsers/").then((response) => {
-                setUsers(response.data);
-            })
-        }
-        fetchData();
 
-        },[])
-		
-		// const [shopCount, setShopCount] = useState([]);
-
-		useEffect(() => {
+	useEffect(() => {
 			if (role==="DISTRIBUTOR"){
 				const fetchData =async ()=>{
 				await axios.get(`http://localhost:5000/api/userInfo/${id}`)
@@ -103,9 +87,8 @@ const User = () => {
 			}
 			else if (role==="SHOP") {
 				const fetchData = async ()=>{
-					await axios.get("http://localhost:5000/api/DeviceDetails/").then ((response)=>{
-						setUsers(response.data);
-					})
+					await axios.get(`http://localhost:5000/api/deviceDetails/${id}`)
+					.then((response)=> {setUsers(response.data);})
 				}
 				fetchData();
 			}
@@ -125,31 +108,45 @@ const User = () => {
 
 		return (
 			<>
-			{/* const handleActionItemClick = (item, itemID) => {
-    var updateItem = item.toLowerCase();
-    if (updateItem === "delete") {
-      alert(`#${itemID} item delete`);
-    } else if (updateItem === "edit") {
-      navigate(`/catalog/product/manage/${itemID}`);
-    }
-  }; */}
 			<div className='user-table'>
 				<table border={1} cellPadding={10} cellSpacing={0}>
 			
 					<thead>
 						<tr>
-							{ role === "DISTRIBUTOR"? <th>SHOPS</th>: <th>DISTRIBUTORS</th>}
-							{role ==="DISTRIBUTOR" ? <th>DEVICE</th>:<th>SHOPS</th>}
-
-
-
-
+							{
+								role === 'DISTRIBUTOR' ? (
+									<>
+										<th>SHOP'S</th>
+										<th>DEVICE'S</th>
+									</>
+								) : role === 'SHOP' ? (
+									<>
+										<th>VERSION'S</th>
+										<th>MAC-ADDRESS</th>
+									</>
+								) : (
+									<>
+										<th>DISTRIBUTOR'S</th>
+										<th>SHOP'S</th>
+									</>
+								)
+							}
+							{/* { role === "DISTRIBUTOR"? <th>SHOPS</th>:<th>DISTRIBUTORS</th>}
+							{role ==="DISTRIBUTOR" ? <th>DEVICE</th> :<th>SHOPS</th> } */}
+							{/* {role==="SHOP" }  {role==="DISTRIBUTOR"} <th>version</th> <th>mac</th>  */}
+						
 						</tr>
 					</thead>
 
 					<tbody>
 				
 							{users.map((user)=> (
+								role === "SHOP" ? 
+								<tr key={user.id}>
+								  <td>{user?.details?.version}</td>
+								  <td>{user?.details?.macAddress}</td>
+
+								</tr> : 
 								<tr key={user.id}>
 								  <td>{user.username}</td>
 								  <td className="link-primary text-decoration-underline"  onClick={()  => navigate(`/${user.role}/${user._id}`)}>{user.shopCount}</td>

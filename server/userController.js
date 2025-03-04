@@ -1,5 +1,6 @@
 import userModel from "./userModel.js";
-
+import deviceModel from "./deviceModel.js";
+import { ObjectId } from "mongodb"
 
 
 export const getUsers = async (req,res) => {
@@ -35,7 +36,6 @@ export const getUsers = async (req,res) => {
          },
         }}
       ]) 
-      console.log(data)
     res.status(200).json(data)
     } catch (error) {
         console.log(error)
@@ -85,7 +85,6 @@ export const getUserInfo = async (req,res) => {
     ]
     // console.log(JSON.stringify(aggregation));
     const data = await userModel.aggregate(aggregation)
-    console.log(data, "data")
     res.status(200).json(data)
 
     
@@ -99,22 +98,16 @@ export const getUserInfo = async (req,res) => {
   
 export const getdeviceDetails = async (req,res) => {
   try {
-    const details = await deviceDetails.aggregate([ 
-      { $match : { role : "shopId" } },
+    const { shopId } = req.params;
+    const details = await deviceModel.aggregate([ 
+      { $match : { shopId: new ObjectId(shopId) } },
       {
         $unwind: {
             path: '$details',
-        
         }
-        
-    },
-  console.log(details)
-  
-    
+    }, 
     ])
-   
-
-  res.status(200).json(data)
+  res.status(200).json(details)
   } catch (error) {
       console.log(error)
       res.status(500).json({error: error})
