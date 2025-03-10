@@ -128,6 +128,7 @@ const User = () => {
 									<>
 										<th>DISTRIBUTOR'S</th>
 										<th>SHOP'S</th>
+										<th>COUNT'S</th>
 									</>
 								)
 							}

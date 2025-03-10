@@ -1,6 +1,7 @@
 import userModel from "./userModel.js";
 import deviceModel from "./deviceModel.js";
 import { ObjectId } from "mongodb"
+import { connection } from "mongoose";
 
 
 export const getUsers = async (req,res) => {
@@ -115,3 +116,72 @@ export const getdeviceDetails = async (req,res) => {
     }
   
 }
+
+export const getCounts = async (req,res) =>{
+  try {
+    const counts = await userModel.aggregate([ 
+        
+        {
+            $lookup: {
+              from: "users",
+              let: { distributorId:{ $toString: "$_id"}  },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: {
+   					$eq:  ["$shopId", "$$distributorId"]                   
+                    },
+                    role: "SHOP"
+                  }
+                }
+              ],
+              as: "shop-counts"
+            }
+          },
+          
+        { $project: {
+          role: 1,
+          "shopCount": {
+           "$size": {
+             "$ifNull": ["$shop-count", 0]
+           }
+         },
+        }},
+
+        {
+          $lookup: {
+            from: "users",
+            let: { parentId: "$_id" },
+            pipeline: [
+              {
+                $match: {
+                  $expr: {
+           $eq:  ["$parentId", "$_id"]                   
+                  },
+                  role: "CASHIER"
+                }
+              }
+            ],
+            as: "cashier-counts"
+          }
+        },
+        
+      { $project: {
+        role: 1,
+        "shopCount": {
+         "$size": {
+           "$ifNull": ["$shop-count", 0]
+         }
+       },
+      }}
+      ]) 
+    res.status(200).json(data)
+    } catch (error) {
+        console.log(error)
+        res.status(500).json({error: error})
+        
+      }
+
+};
+
+  
