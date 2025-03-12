@@ -1,7 +1,7 @@
 import userModel from "./userModel.js";
 import deviceModel from "./deviceModel.js";
 import { ObjectId } from "mongodb"
-import { connection } from "mongoose";
+// import { connection } from "mongoose";
 
 
 export const getUsers = async (req,res) => {
@@ -121,67 +121,74 @@ export const getCounts = async (req,res) =>{
   try {
     const counts = await userModel.aggregate([ 
         
-        {
+        // {
+        //     $lookup: {
+        //       from: "users",
+        //       let: { distributorId:{ $toString: "$_id"}  },
+        //       pipeline: [
+        //         { "$match": { "$expr": { "$in": [ "$_id", "distributorId" ] } } }
+        //       ],
+        //       as: "shop-counts"
+        //     }
+        //   },
+         
+          {
             $lookup: {
               from: "users",
-              let: { distributorId:{ $toString: "$_id"}  },
               pipeline: [
                 {
                   $match: {
-                    $expr: {
-   					$eq:  ["$shopId", "$$distributorId"]                   
-                    },
-                    role: "SHOP"
+                    role: "SHOP",
+                    parentId: "664c5e7127f0b76c502b0cbd"
                   }
                 }
               ],
-              as: "shop-counts"
+              as: "shops"
             }
           },
-          
-        { $project: {
-          role: 1,
-          "shopCount": {
-           "$size": {
-             "$ifNull": ["$shop-count", 0]
-           }
-         },
-        }},
 
-        {
-          $lookup: {
-            from: "users",
-            let: { parentId: "$_id" },
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-           $eq:  ["$parentId", "$_id"]                   
-                  },
-                  role: "CASHIER"
+          {
+            $lookup: {
+              from: "users",
+              let: { parentId: "$_id" },
+              pipeline: [
+                {
+                  $match: {
+                    $expr: { $in: ["$_id", "$$parentId"] },
+                    role: "CASHIER"
+                  }
                 }
+              ],
+              as: "CASHIER"
+            }
+          },
+          {
+              $project: {
+              "shopIds"  : {
+                   $map: {
+                     input: "$shops",
+                     as: "shopId",
+                     in:  "$$shopId._id"          
+                 }
               }
-            ],
-            as: "cashier-counts"
-          }
-        },
-        
-      { $project: {
-        role: 1,
-        "shopCount": {
-         "$size": {
-           "$ifNull": ["$shop-count", 0]
-         }
-       },
-      }}
-      ]) 
-    res.status(200).json(data)
-    } catch (error) {
-        console.log(error)
-        res.status(500).json({error: error})
-        
-      }
+              }
+           }]
 
-};
+
+          
+
+
+          
+          )
+  }
+
+    catch (error) {
+      console.log(error)
+          res.status(500).json({error: error})
+    }
+}
+
+  
+         
 
   
