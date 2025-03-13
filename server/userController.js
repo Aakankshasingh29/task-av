@@ -141,45 +141,75 @@ export const getCounts = async (req,res) =>{
                     role: "SHOP",
                     parentId: "664c5e7127f0b76c502b0cbd"
                   }
-                }
+                },
               ],
               as: "shops"
             }
           },
-
+          
           {
-            $lookup: {
-              from: "users",
-              let: { parentId: "$_id" },
-              pipeline: [
-                {
-                  $match: {
-                    $expr: { $in: ["$_id", "$$parentId"] },
-                    role: "CASHIER"
-                  }
-                }
-              ],
-              as: "CASHIER"
+            $addFields: {
+              "shopIds"  : {
+                $map: {
+                  input: "$shops",
+                  as: "shopId",
+                  in:  "$$shopId._id"          
+              }
+           }
             }
           },
           {
+            $group: {
+              _id: "$shopIds"
+            }
+          },
+          {
+            $lookup:{
+              from:"users",
+              let: { shopIds: "$shopIds"},
+              pipeline:[
+                {
+                  $match:{
+                    role:"CASHIER",
+                    $expr: {
+                      $and : {
+                        $in: ["$parentId", "$$shopIds"]
+                      }
+                    }
+                  }
+                }
+              ],
+              as: "cashiers"
+            }
+
+          },
+          // {
+          //   $lookup: {
+          //     from: "users",
+          //     let: {
+          //       parentId: { $toObjectId: "$SHOPS.Id" },
+          //       items: "$items"
+          //     },
+          //     pipeline: [
+          //       { $match: { $expr: { $eq: ["$_id", "$$itemId" ] } } },
+          //       { $replaceRoot: { newRoot: { $mergeObjects: ["$$items", "$$ROOT"] } } }
+          //     ],
+          //     as: "items"
+          //   }
+          // },         
+          {
               $project: {
-              "shopIds"  : {
-                   $map: {
-                     input: "$shops",
-                     as: "shopId",
-                     in:  "$$shopId._id"          
-                 }
-              }
+                "shopIds"  : 1,
+                "cashiers": 1,
+                // "shopCount": {
+                //   "$size": {
+                //     "$ifNull": ["$shopIds", 0]
+                //   }
+                // },
               }
            }]
-
-
-          
-
-
-          
           )
+          res.status(200).json({counts})
   }
 
     catch (error) {

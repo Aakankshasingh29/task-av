@@ -73,6 +73,7 @@ import { useParams } from 'react-router-dom'
 
 const User = () => {
     const [users, setUsers] = useState([]);	
+	const [isOpen, setIsOpen] = useState(false);
 	const { role, id } = useParams()
 	const navigate = useNavigate();
 
@@ -151,9 +152,24 @@ const User = () => {
 								<tr key={user.id}>
 								  <td>{user.username}</td>
 								  <td className="link-primary text-decoration-underline"  onClick={()  => navigate(`/${user.role}/${user._id}`)}>{user.shopCount}</td>
-								</tr>
-							  ))}
-					</tbody>
+								  <td> <button onClick={() => setIsOpen(true)} class="btn btn-info">View</button>
+								  {isOpen && (<div>
+									<div>
+										This is the content of the pop-up.
+									</div>
+								<button onClick={() => setIsOpen(false)}>Close Pop-up</button>
+							</div>
+						)}
+						</td>
+	  
+					</tr>
+								
+								
+				 ))}
+							
+				</tbody>
+					
+					
 				</table>
 			</div>
 			</>
