@@ -5,75 +5,15 @@ import axios from "axios";
 import React, { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useParams } from 'react-router-dom'
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
 
 
-
-// export default function TableExample() { 
-// return ( 
-// 	<> 
-
-{/* <h3 className='table'>Default Variant Small Size Theme Table</h3>  */}
-
-{/* <div className='user-table'>
-<Table stripped bordered hover size="md"> 
-<thead > 
-	<tr> 
-	<th width="170">Distributor</th> 
-	
-	<th width="1950">shops</th> 
-
-	</tr> 
-</thead> 
-<tbody> 
-	<tr> 
-	<td>Rakesh</td> 
-
-	<td>86.9%</td> 
-
-	</tr> 
-	<tr> 
-	<td>Jackson</td> 
-	
-	<td>72.4%</td> 
-
-	</tr> 
-	<tr> 
-	<td>Keshav</td> 
-	
-	<td>88%</td> 
-
-	</tr> 
-	<tr> 
-	<td>Neilesh Jain</td> 
-	
-	<td>66.9%</td> 
-
-	</tr> 
-	<tr> 
-	<td>Akbar sheikh</td> 
-
-	<td>96.5%</td> 
-
-	</tr> 
-	<tr> 
-	<td>Sarita</td> 
-
-	<td>96.9%</td> 
-
-	</tr> 
-
-</tbody> 
-</Table> 
-</div>
-	</> 
-
-); */}
-{/*  
-} */}
 
 const User = () => {
     const [users, setUsers] = useState([]);	
-	const [isOpen, setIsOpen] = useState(false);
+	const [isOpen, setIsOpen] = useState(false);	
+
 	const { role, id } = useParams()
 	const navigate = useNavigate();
 
@@ -81,7 +21,7 @@ const User = () => {
 			if (role==="DISTRIBUTOR"){
 				const fetchData =async ()=>{
 				await axios.get(`http://localhost:5000/api/userInfo/${id}`)
-				.then((response) => { setUsers(response.data);}
+				.then((response) => { console.log(response.data);setUsers(response.data);}
 			)
 				}
 				fetchData();
@@ -105,6 +45,25 @@ const User = () => {
 
 			
 		},[role] )
+
+		useEffect(()=>{
+			try{
+			if (isOpen){
+				const fetchData = async () => {
+					await axios.get(`http://localhost:5000/api/counts/${id}`)
+					.then ((response) => {setUsers(response.data);})
+				}
+				fetchData();
+			}
+			
+			
+			} catch (error) {
+				console.log(error)
+			}
+			
+		}, [isOpen])
+	
+	
 
 
 		return (
@@ -144,22 +103,48 @@ const User = () => {
 				
 							{users.map((user)=> (
 								role === "SHOP" ? 
-								<tr key={user.id}>
+								<tr key={`shop_${user.id}`}>
 								  <td>{user?.details?.version}</td>
 								  <td>{user?.details?.macAddress}</td>
+								  {/* <td>{user?.counts}</td> */}
 
 								</tr> : 
 								<tr key={user.id}>
 								  <td>{user.username}</td>
 								  <td className="link-primary text-decoration-underline"  onClick={()  => navigate(`/${user.role}/${user._id}`)}>{user.shopCount}</td>
-								  <td> <button onClick={() => setIsOpen(true)} class="btn btn-info">View</button>
-								  {isOpen && (<div>
-									<div>
-										This is the content of the pop-up.
+								  <td> <button class="btn btn-info" onClick={() => setIsOpen(true)} >View</button>
+								  <Modal
+								  	show={isOpen}
+									size="lg"
+									aria-labelledby="contained-modal-title-vcenter"
+									centered
+									>
+									<Modal.Header closeButton>
+										<Modal.Title id="contained-modal-title-vcenter">
+										List
+										</Modal.Title>
+									</Modal.Header>
+									<Modal.Body>
+										<h4>TOTAL NO. OF COUNT'S</h4>
+										<p>
+										<div class="modal-body">
+									<table class="table table-striped">
+									<thead>
+									<tr>
+									<th>Shop's</th>
+									<th>Cashier</th>
+									<th>Kiosk</th>
+									<th>Machines</th>
+									</tr>
+									</thead>
+									</table>
 									</div>
-								<button onClick={() => setIsOpen(false)}>Close Pop-up</button>
-							</div>
-						)}
+									</p>
+									</Modal.Body>
+									<Modal.Footer>
+										<Button onClick={() => setIsOpen(false)}>Close</Button>
+									</Modal.Footer>
+									</Modal>
 						</td>
 	  
 					</tr>
@@ -172,9 +157,8 @@ const User = () => {
 					
 				</table>
 			</div>
-			</>
+		</>
 		  )
-		}
-		
+};
 		export default User;
 		
