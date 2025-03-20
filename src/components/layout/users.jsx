@@ -11,66 +11,64 @@ import Button from 'react-bootstrap/Button';
 
 
 const User = () => {
-    const [users, setUsers] = useState([]);	
-	const [isOpen, setIsOpen] = useState(false);	
+	const [users, setUsers] = useState([]);
+	const [isOpen, setIsOpen] = useState(false);
+	const [counts, setCounts] = useState([]);
 
 	const { role, id } = useParams()
 	const navigate = useNavigate();
 
 	useEffect(() => {
-			if (role==="DISTRIBUTOR"){
-				const fetchData =async ()=>{
+		if (role === "DISTRIBUTOR") {
+			const fetchData = async () => {
 				await axios.get(`http://localhost:5000/api/userInfo/${id}`)
-				.then((response) => { console.log(response.data);setUsers(response.data);}
-			)
-				}
-				fetchData();
+					.then((response) => { console.log(response.data); setUsers(response.data); }
+					)
 			}
-			else if (role==="SHOP") {
-				const fetchData = async ()=>{
-					await axios.get(`http://localhost:5000/api/deviceDetails/${id}`)
-					.then((response)=> {setUsers(response.data);})
-				}
-				fetchData();
+			fetchData();
+		}
+		else if (role === "SHOP") {
+			const fetchData = async () => {
+				await axios.get(`http://localhost:5000/api/deviceDetails/${id}`)
+					.then((response) => { setUsers(response.data); })
 			}
-			
-			else{
-				const fetchData = async ()=>{
-					await axios.get("http://localhost:5000/api/getUsers/").then((response) => {
-						setUsers(response.data);
-					})
-				}
-				fetchData();
-			}
+			fetchData();
+		}
 
-			
-		},[role] )
+		else {
+			const fetchData = async () => {
+				await axios.get("http://localhost:5000/api/getUsers/").then((response) => {
+					setUsers(response.data);
+				})
+			}
+			fetchData();
+		}
 
-		useEffect(()=>{
-			try{
-			if (isOpen){
+
+	}, [role])
+
+	// useEffect(() => {
+	
+
+	// }, [isOpen])
+
+	const calculateCount = async(userId) => {
+		try {
+			setIsOpen(true)
 				const fetchData = async () => {
-					await axios.get(`http://localhost:5000/api/counts/${id}`)
-					.then ((response) => {setUsers(response.data);})
+					await axios.get(`http://localhost:5000/api/counts/${userId}`)
+						.then((response) => { setCounts(response.data.counts); })
 				}
 				fetchData();
-			}
-			
-			
-			} catch (error) {
-				console.log(error)
-			}
-			
-		}, [isOpen])
-	
-	
-
-
-		return (
-			<>
+		} catch (error) {
+			console.log(error)
+		}
+	}
+	return (
+		<>
 			<div className='user-table'>
 				<table border={1} cellPadding={10} cellSpacing={0}>
-			
+
 					<thead>
 						<tr>
 							{
@@ -95,70 +93,89 @@ const User = () => {
 							{/* { role === "DISTRIBUTOR"? <th>SHOPS</th>:<th>DISTRIBUTORS</th>}
 							{role ==="DISTRIBUTOR" ? <th>DEVICE</th> :<th>SHOPS</th> } */}
 							{/* {role==="SHOP" }  {role==="DISTRIBUTOR"} <th>version</th> <th>mac</th>  */}
-						
+
 						</tr>
 					</thead>
 
 					<tbody>
-				
-							{users.map((user)=> (
-								role === "SHOP" ? 
-								<tr key={`shop_${user.id}`}>
-								  <td>{user?.details?.version}</td>
-								  <td>{user?.details?.macAddress}</td>
-								  {/* <td>{user?.counts}</td> */}
 
-								</tr> : 
+						{users.map((user) => (
+							role === "SHOP" ?
+								<tr key={`shop_${user.id}`}>
+									<td>{user?.details?.version}</td>
+									<td>{user?.details?.macAddress}</td>
+									{/* <tr key={user.id}>
+												<td>{user.Shops}</td>
+												<td>{user.Cashier}</td>
+												<td>{user.Kiosk}</td>
+												<td>{user.Machines}</td>
+											</tr> */}
+
+
+								</tr> :
 								<tr key={user.id}>
-								  <td>{user.username}</td>
-								  <td className="link-primary text-decoration-underline"  onClick={()  => navigate(`/${user.role}/${user._id}`)}>{user.shopCount}</td>
-								  <td> <button class="btn btn-info" onClick={() => setIsOpen(true)} >View</button>
-								  <Modal
-								  	show={isOpen}
-									size="lg"
-									aria-labelledby="contained-modal-title-vcenter"
-									centered
-									>
-									<Modal.Header closeButton>
-										<Modal.Title id="contained-modal-title-vcenter">
-										List
-										</Modal.Title>
-									</Modal.Header>
-									<Modal.Body>
-										<h4>TOTAL NO. OF COUNT'S</h4>
-										<p>
-										<div class="modal-body">
-									<table class="table table-striped">
-									<thead>
-									<tr>
-									<th>Shop's</th>
-									<th>Cashier</th>
-									<th>Kiosk</th>
-									<th>Machines</th>
-									</tr>
-									</thead>
-									</table>
-									</div>
-									</p>
-									</Modal.Body>
-									<Modal.Footer>
-										<Button onClick={() => setIsOpen(false)}>Close</Button>
-									</Modal.Footer>
-									</Modal>
-						</td>
-	  
-					</tr>
-								
-								
-				 ))}
-							
-				</tbody>
-					
-					
+									<td>{user.username}</td>
+									<td className="link-primary text-decoration-underline" onClick={() => navigate(`/${user.role}/${user._id}`)}>{user.shopCount}</td>
+									<td> <button class="btn btn-info" onClick={() => calculateCount(user._id)} >View</button>
+
+										<Modal
+											show={isOpen}
+											size="lg"
+											aria-labelledby="contained-modal-title-vcenter"
+											centered
+										>
+											<Modal.Header closeButton>
+												<Modal.Title id="contained-modal-title-vcenter">
+													List
+												</Modal.Title>
+											</Modal.Header>
+											<Modal.Body>
+												<h4>TOTAL NO. OF COUNT'S</h4>
+												<p>
+													<div class="modal-body">
+														<table class="table table-striped">
+															<thead>
+																<tr>
+																	<th>Shop's</th>
+																	<th>Cashier</th>
+																	<th>Kiosk</th>
+																	<th>Machines</th>
+																</tr>
+															
+														
+															</thead>
+															<tbody>
+															<tr>
+																	<td>{counts.shopCount}</td>
+																	<td>{counts.cashierCount}</td>
+																	<td>{counts.kioskCount}</td>
+																	<td>{counts.machinesCount}</td>
+																</tr>
+															</tbody>
+														</table>
+													</div>
+												</p>
+											</Modal.Body>
+											<Modal.Footer>
+												<Button onClick={() => setIsOpen(false)}>Close</Button>
+											</Modal.Footer>
+										</Modal>
+																
+									</td>
+
+								</tr>
+																
+
+
+						))}
+
+					</tbody>
+
+
 				</table>
 			</div>
 		</>
-		  )
+	)
 };
-		export default User;
-		
+export default User;
+

@@ -7,7 +7,7 @@ const route = express.Router();
 route.get("/getUsers",getUsers);
 route.get("/userInfo/:distributorId",getUserInfo);
 route.get("/deviceDetails/:shopId",getdeviceDetails);
-route.get("/counts/:countsId",getCounts);
+route.get("/counts/:distributorId",getCounts);
 // route.delete("/delete/:id",deleteUser);
 
 export default route;

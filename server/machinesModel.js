@@ -1,16 +1,18 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 const machinesSchema = new mongoose.Schema({
     shopId:{
-        type: String,
-        required : true
+        required : true,
+        type: Schema.Types.ObjectId,
+        ref: 'users'
     },
     username:{
         type: String,
         required: true
     },
     distributorId:{
-        type:String,
-        required: true
+        required: true,
+        type: Schema.Types.ObjectId,
+        ref: 'users'
     },
 
 })
